@@ -6,6 +6,8 @@
 #include <ESPAsyncWebServer.h>
 #include <AsyncTCP.h>
 #include "index_html.h"
+#include <WiFiUdp.h>
+#include <NTPClient.h>
 
 
 #define BAUD 115200
@@ -16,6 +18,8 @@ static const unsigned short ONBOARD_BUTTON = 0;
 static const unsigned short ONBOARD_TOUCH = 4;
 
 AsyncWebServer server(80);
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, 60*60*6*-1 );
 
 String readLedState() {
   bool isOn = digitalRead(ONBOARD_LED);
@@ -82,6 +86,10 @@ void setup()
 
   server.begin();
 
+  // update a little over once an hour (but not exactly once an hour, so that the time of day changes and we don't hammer at the same time)
+  timeClient.setUpdateInterval((1000 * 60 * 60) + 50000);
+  timeClient.begin();
+
 }
 
 void blinkLed(int msLength) {
@@ -94,6 +102,9 @@ void blinkLed(int msLength) {
 
 void loop()
 {
+  timeClient.update();
+  Serial.println(timeClient.getFormattedTime());
+  Serial.println(timeClient.getDay());
   delay(500);
 }
 
