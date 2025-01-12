@@ -17,10 +17,21 @@ static const unsigned short ONBOARD_TOUCH = 4;
 
 AsyncWebServer server(80);
 
+String readLedState() {
+  bool isOn = digitalRead(ONBOARD_LED);
+  if (isOn) {
+    return "checked";
+  }
+  return "";
+}
+
 String processor(const String& var) 
 {
   if (var == "test") {
     return "changed!";
+  }
+  if (var == "isLedOn" ) {
+    return readLedState();
   }
 
   return var;
@@ -51,8 +62,24 @@ void setup()
   Serial.print(WiFi.localIP());
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    // send_P = "send page"
     request->send_P(200, "text/html", index_html, processor);
   });
+
+  server.on("/update", HTTP_GET, [](AsyncWebServerRequest *request) {
+    String inputMessage;
+    if (request->hasParam("output") && request->hasParam("state")) {
+      inputMessage = request->getParam("state")->value();
+      digitalWrite(ONBOARD_LED, inputMessage.toInt());
+    } else {
+      inputMessage = "unknown message";
+    }
+
+    Serial.print("Received update message to ");
+    Serial.println(inputMessage);
+    request->send(200, "text/plain", "OK");
+  });
+
   server.begin();
 
 }
@@ -67,8 +94,7 @@ void blinkLed(int msLength) {
 
 void loop()
 {
-
-  delay(5);
+  delay(500);
 }
 
 

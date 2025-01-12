@@ -1,7 +1,6 @@
 #include <Arduino.h>
 
 const char index_html[] PROGMEM = R"rawliteral(
-
 <!DOCTYPE HTML><html>
 <head>
   <title>ESP Web Server</title>
@@ -22,8 +21,9 @@ const char index_html[] PROGMEM = R"rawliteral(
 </head>
 <body>
   <h2>ESP Web Server</h2>
-  %test%
-<script>function toggleCheckbox(element) {
+  <input %isLedOn% type="checkbox" onchange="toggleCheckbox(this)" id=1>
+<script>
+function toggleCheckbox(element) {
   var xhr = new XMLHttpRequest();
   if(element.checked){ xhr.open("GET", "/update?output="+element.id+"&state=1", true); }
   else { xhr.open("GET", "/update?output="+element.id+"&state=0", true); }
