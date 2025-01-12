@@ -21,14 +21,29 @@ const char index_html[] PROGMEM = R"rawliteral(
 </head>
 <body>
   <h2>ESP Web Server</h2>
+  <span>It is currently <span id="time"></span>
   <input %isLedOn% type="checkbox" onchange="toggleCheckbox(this)" id=1>
 <script>
+
+function getTime() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("time").innerHTML = this.responseText;
+      }
+    };
+    xhttp.open("GET", "/time", true);
+    xhttp.send();
+  }
+
 function toggleCheckbox(element) {
   var xhr = new XMLHttpRequest();
   if(element.checked){ xhr.open("GET", "/update?output="+element.id+"&state=1", true); }
   else { xhr.open("GET", "/update?output="+element.id+"&state=0", true); }
   xhr.send();
 }
+
+setInterval(getTime, 500);
 </script>
 </body>
 </html>

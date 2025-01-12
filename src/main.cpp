@@ -79,11 +79,15 @@ void setup()
       inputMessage = "unknown message";
     }
 
+
     Serial.print("Received update message to ");
     Serial.println(inputMessage);
     request->send(200, "text/plain", "OK");
   });
 
+  server.on("/time", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/plain", timeClient.getFormattedTime());
+  });
   server.begin();
 
   // update a little over once an hour (but not exactly once an hour, so that the time of day changes and we don't hammer at the same time)
